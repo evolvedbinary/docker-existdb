@@ -1,5 +1,6 @@
 # eXist-db Docker Image Builder
 
+[![Build Status](https://travis-ci.org/evolvedbinary/docker-existdb.svg?branch=master)](https://travis-ci.org/evolvedbinary/docker-existdb)
 [![](https://images.microbadger.com/badges/version/evolvedbinary/exist-db.svg)](https://microbadger.com/images/evolvedbinary/exist-db "Get your own version badge on microbadger.com")
 [![](https://images.microbadger.com/badges/image/evolvedbinary/exist-db.svg)](https://microbadger.com/images/evolvedbinary/exist-db "Get your own image badge on microbadger.com")
 

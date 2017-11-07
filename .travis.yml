@@ -1,0 +1,22 @@
+sudo: required
+
+language: java
+
+jdk:
+  - oraclejdk8
+#  - oraclejdk9
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - augeas-tools
+
+before_install:
+  - docker info
+  - ./build.sh --no-experimental eXist-3.5.0
+
+script:
+  - docker run -it --rm evolvedbinary/exist-db:eXist-3.5.0 -Dexist.home=/exist -jar /exist/start.jar client --no-gui --local --xpath "system:get-version()"
