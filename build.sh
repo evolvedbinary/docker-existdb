@@ -26,6 +26,21 @@ SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
 TARGET="${SCRIPT_PATH}/target"
 EXIST_CLONE="${TARGET}/exist"
 EXIST_MODS="${TARGET}"
+
+# Extract arguments
+EXPERIMENTAL=YES		# YES to use Docker experimental features, NO otherwise
+for i in "$@"
+do
+case $i in
+    -n|--no-experimental)
+    EXPERIMENTAL=NO
+    shift # past argument with no value
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+done
 BRANCH_NAME="${1}"
 
 CONTAINER_EXIST_PATH=/exist
@@ -89,8 +104,14 @@ save
 EOF
 
 # Build Docker image
+EXPERIMENTAL_ARGS=""
+if [ "$EXPERIMENTAL" == "YES" ]
+then
+	EXPERIMENTAL_ARGS="--squash"
+fi
+
 docker build \
   --build-arg VCS_REF=`git rev-parse --short HEAD` \
   --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-  --rm --force-rm --squash -t "evolvedbinary/exist-db:${BRANCH_NAME}" .
+  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" .
 
