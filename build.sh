@@ -97,9 +97,8 @@ cat << EOF | augtool --noload --noautoload
 set /augeas/load/xml/lens "Xml.lns"
 set /augeas/load/xml/incl "${UPDATED_CONF}"
 load
-context /files/$UPDATED_CONF
-set exist/db-connection/#attribute/files $CONTAINER_EXIST_DATA_PATH
-set exist/db-connection/recovery/#attribute/journal-dir $CONTAINER_EXIST_DATA_PATH
+set /files/$UPDATED_CONF/exist/db-connection/#attribute/files $CONTAINER_EXIST_DATA_PATH
+set /files/$UPDATED_CONF/exist/db-connection/recovery/#attribute/journal-dir $CONTAINER_EXIST_DATA_PATH
 save
 EOF
 
