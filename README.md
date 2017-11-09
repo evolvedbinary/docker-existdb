@@ -38,7 +38,10 @@ $ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-3.5.0
 
 You can now connect to the eXist-db running inside the Docker container from your host machine using ports `9080` and `9443`.
 
-To shutdown the eXist-db server running in the Docker container, simply press `Ctrl-C` in the interactive terminal hosting the Docker container.
+To shutdown the eXist-db server running in the Docker container, you can either: 
+
+1. Simply press `Ctrl-C` in the interactive terminal hosting the Docker container.
+2. Run `$ docker stop <container name>`. You can get the "container name" by running `$ docker ps` and examining the "NAMES" column of the output. 
 
 ### Using local storage for eXist-db data
 
