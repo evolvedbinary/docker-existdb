@@ -62,7 +62,9 @@ $ curl -v http://admin:@localhost:9080/exist/rest/db/?_query=sm%3Apasswd\(%22adm
 ### Using local storage for eXist-db data
 
 You can also run a Docker container that uses a non-container filesystem for storage. One of the options is to use a folder on the host machine to hold the eXist-db data directory.
-This can be useful if you need to share data between the Container and the Host. *WARNING:* you should never write or read to the host folder whilst the container is running, otherwise you risk corrupting your eXist-db database.
+This can be useful if you need to share data between the Container and the Host.
+
+**WARNING:** you should never write or read to the host folder whilst the container is running, otherwise you risk corrupting your eXist-db database.
 
 For example is you wanted to keep eXist-db's data in the host folder `/Users/bob/docker-exist-data/01` you would launch a container using something like:
 
@@ -70,6 +72,6 @@ For example is you wanted to keep eXist-db's data in the host folder `/Users/bob
 $ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-3.5.0
 ```
 
-*NOTE:* This approach adds further overhead to I/O performance.
+**NOTE:** This approach adds further overhead to I/O performance.
 
 
