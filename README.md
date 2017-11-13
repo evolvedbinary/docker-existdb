@@ -43,6 +43,22 @@ To shutdown the eXist-db server running in the Docker container, you can either:
 1. Simply press `Ctrl-C` in the interactive terminal hosting the Docker container.
 2. Run `$ docker stop <container name>`. You can get the "container name" by running `$ docker ps` and examining the "NAMES" column of the output. 
 
+### Note: Default username and password
+
+eXist inside the docker images is configured with the default username and password for the *admin* account, i.e.: username: `"admin"`, with password: `""`.
+
+If you are using this for anything serious, you should of course change the default password. The easiest way to do this, is probably to use cURL and a small amount of XQuery. For example, if you wanted to change from the default password to the password '"electricsheep"` you would run something like following from your console:
+
+```bash
+$ curl -v http://admin:@localhost:9080/exist/rest/db/?_query=sm:passwd("admin", "electricsheep")
+```
+
+**However**, for the above to be executed correctly the query part of the URL needs to be URL Encoded, and if you are running this from bash, then the brackets need to be escaped, so you would actually run:
+
+```bash
+$ curl -v http://admin:@localhost:9080/exist/rest/db/?_query=sm%3Apasswd\(%22admin%22%2C%20%22electricsheep%22\)
+```
+
 ### Using local storage for eXist-db data
 
 You can also run a Docker container that uses a non-container filesystem for storage. One of the options is to use a folder on the host machine to hold the eXist-db data directory.
