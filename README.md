@@ -26,6 +26,17 @@ $ cd docker-existdb
 $ ./build.sh eXist-3.5.0
 ```
 
+### Building a Minimal eXist-db Docker Image
+
+The standard build uses a full-fat clone of eXist-db from GitHub which has been compiled. It is also possible to build a Docker Image which contains just the absolute minimum of eXist-db to run a server in Docker. If you want to build a minimal eXist-db Docker image, usage would look like:
+
+```bash
+$ git clone https://github.com/evolvedbinary/docker-existdb.git
+
+$ cd docker-existdb
+$ ./build.sh --minimal eXist-3.5.0
+```
+
 ## Running an eXist-db Docker Image
 
 <a name="running"/>
@@ -34,6 +45,12 @@ eXist-db inside the Docker container is listening on TCP ports `8080` for HTTP a
 
 ```bash
 $ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-3.5.0
+```
+
+or if you wish to instead run the minimal eXist-db Docker image:
+
+```bash
+$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-3.5.0-minimal
 ```
 
 You can now connect to the eXist-db running inside the Docker container from your host machine using ports `9080` and `9443`.
@@ -71,6 +88,13 @@ For example is you wanted to keep eXist-db's data in the host folder `/Users/bob
 ```bash
 $ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-3.5.0
 ```
+
+or if you wish to instead run the minimal eXist-db Docker image:
+
+```bash
+$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-3.5.0-minimal
+```
+
 
 **NOTE:** This approach adds further overhead to I/O performance.
 
