@@ -70,7 +70,7 @@ minify_exist() {
 	# copy base libs
 	cp "${EXIST_CLONE}/start.jar" "${EXIST_CLONE}/exist.jar" "${EXIST_CLONE}/exist-optional.jar" "${EXIST_MINIMAL}"
 	mkdir -p "${EXIST_MINIMAL}/lib"
-	cp -r "${EXIST_CLONE}/lib/core" "${EXIST_CLONE}/lib/endorsed" "${EXIST_CLONE}/lib/optional" "${EXIST_CLONE}/lib/extensions" "${EXIST_CLONE}/lib/user" "${EXIST_MINIMAL}/lib"
+	cp -r "${EXIST_CLONE}/lib/core" "${EXIST_CLONE}/lib/endorsed" "${EXIST_CLONE}/lib/optional" "${EXIST_CLONE}/lib/extensions" "${EXIST_CLONE}/lib/user" "${EXIST_CLONE}/lib/test" "${EXIST_MINIMAL}/lib"
 
 	# copy config files
 	cp "${EXIST_CLONE}/descriptor.xml" "${EXIST_CLONE}/log4j2.xml" "${EXIST_CLONE}/mime-types.xml" "${EXIST_MINIMAL}"
