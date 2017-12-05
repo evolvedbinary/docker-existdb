@@ -59,6 +59,9 @@ minify_exist() {
 	if [ ! -d "$EXIST_MINIMAL" ]
 	then
 		mkdir -p "${EXIST_MINIMAL}"
+	else
+		# make sure we start with a clean build
+		rm -rf "${EXIST_MINIMAL}/*"
 	fi
 
 	# copy sundries
