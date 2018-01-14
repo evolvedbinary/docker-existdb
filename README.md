@@ -4,7 +4,7 @@
 [![](https://images.microbadger.com/badges/version/evolvedbinary/exist-db.svg)](https://microbadger.com/images/evolvedbinary/exist-db "Get your own version badge on microbadger.com")
 [![](https://images.microbadger.com/badges/image/evolvedbinary/exist-db.svg)](https://microbadger.com/images/evolvedbinary/exist-db "Get your own image badge on microbadger.com")
 
-This repository contains the build files for creating [eXist-db](https://www.exist-db.org) [Docker](https://docker.com) images.
+This repository contains the build files for creating [eXist-db](https://www.exist-db.org) [Docker](https://docker.com) images. Our Docker images are based on Google Cloud Platforms ["Distroless" Docker Images](https://github.com/GoogleCloudPlatform/distroless).
 
 ## Requirements
 
