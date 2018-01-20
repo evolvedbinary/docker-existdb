@@ -245,7 +245,4 @@ else
 	  --build-arg VCS_REF=`git rev-parse --short HEAD` \
 	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 	  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" --file "$DOCKERFILE" . 2> errors.log
-
-	# Remove dangling images
-	docker rmi $(docker images -f "dangling=true" -q) 2>> errors.log
 fi
