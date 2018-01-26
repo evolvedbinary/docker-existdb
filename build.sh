@@ -37,7 +37,8 @@ exit_with_usage() {
 	echo "--no-experimental         Don't use experimental Docker features"
 	echo "--minimal                 Create a minimal eXist-db server Docker image"
 	echo "--supportfop              Add dependancies for FOP"
-	echo "--docker-only		Only perform docker build without rebuilding eXist-db"
+	echo "--no-recompile			Only perform docker build without rebuilding eXist-db"
+	echo "--config <conf.xml>		Supply custom conf.xml"
 	echo ""
 	exit 1
 }
@@ -106,7 +107,7 @@ minify_exist() {
 EXPERIMENTAL=YES		# YES to use Docker experimental features, NO otherwise
 MINIMAL=NO			# YES to create a minimal eXist-db server Docker image,$ NO for a full image
 SHOW_USAGE=NO			# YES to show the usage message, NO otherwise
-DOCKERONLY=NO                   # YES to only run docker build without building exist-db again
+NORECOMPILE=NO                   # YES to only run docker build without building exist-db again
 DOCKERFILE="Dockerfile"
 
 for i in "$@"
@@ -114,23 +115,26 @@ do
 case $i in
     -n|--no-experimental)
     EXPERIMENTAL=NO
-    shift # past argument with no value
+	shift
     ;;
     -m|--minimal)
     MINIMAL=YES
-    shift # past argument with no value
+	shift
     ;;
     -f|--support-fop)
     SUPPORTFOP=YES
-    shift # past argument with no value
+	shift
     ;;
-    -d|--docker-only)
-    DOCKERONLY=YES
-    shift # past argument with no value
+    -nr|--no-recompile)
+    NORECOMPILE=YES
+	shift
     ;;
+	-c|--config)
+	shift
+	CUSTOM_CONF="$1"; shift;;
     -h|--help)
     SHOW_USAGE=YES
-    shift # past argument with no value
+	shift
     ;;
     *)
             # unknown option
@@ -157,13 +161,15 @@ then
 	echo ""
 	exit_with_usage
 fi
-BRANCH_NAME="$BRANCH_NAME$SUFFIX"
 
-if [ ! "$DOCKERONLY" == "YES" ]
+if [ ! "$NORECOMPILE" == "YES" ]
 then
 	command -v git >/dev/null 2>&1 || { echo "An installation of Git client is required, but could not be found...  Aborting." >&2; exit 2; }
 	command -v java >/dev/null 2>&1 || { echo "An installation of Java 8 is required, but could not be found...  Aborting." >&2; exit 3; }
-	command -v augtool >/dev/null 2>&1 || { echo "An installation of Augeas (augtool) is required, but could not be found...  Aborting." >&2; exit 4; }
+	if [ ! -f "${CUSTOM_CONF}" ]
+	then
+		command -v augtool >/dev/null 2>&1 || { echo "An installation of Augeas (augtool) is required, but could not be found...  Aborting." >&2; exit 4; }
+	fi
 fi
 
 if [ ! -d "$TARGET" ]
@@ -171,15 +177,16 @@ then
   mkdir -p "${TARGET}"
 fi
 
+
 # Either get or update from GitHub eXist-db
 if [ ! -d "$EXIST_CLONE" ]
 then
-	DOCKERONLY=NO
+	NORECOMPILE=NO
 	git clone https://github.com/exist-db/exist.git "${EXIST_CLONE}"
 	cd "${EXIST_CLONE}"
 	git checkout "${BRANCH_NAME}"
 else
-	if [ "$DOCKERONLY" == "YES" ]
+	if [ "$NORECOMPILE" == "YES" ]
 	then
 	  echo "Not re-building eXist-db, --docker-only option selected"
 	else
@@ -198,26 +205,27 @@ else
 	fi
 fi
 
-if [ ! "$DOCKERONLY" == "YES" ]
+if [ "$NORECOMPILE" != "YES" ]
 then
 	# Build/Rebuild eXist-db
+	cd "${EXIST_CLONE}"
 	./build.sh clean && ./build.sh
+fi
 
-	# Back to the root
-	cd "${SCRIPT_PATH}"
+# Back to the root
+cd "${SCRIPT_PATH}"
 
-	# should we minify the eXist-db we put into the Docker Image?
-	if [ "$MINIMAL" == "YES" ]
-	then
-		minify_exist "$EXIST_CLONE" "$EXIST_MINIMAL"
-	fi
+# Create the updated conf.xml
+if [ ! -d "$EXIST_MODS" ]
+then
+	mkdir "${EXIST_MODS}"
+fi
 
-	# Create the updated conf.xml
-	if [ ! -d "$EXIST_MODS" ]
-	then
-		mkdir "${EXIST_MODS}"
-	fi
-	UPDATED_CONF="${EXIST_MODS}/conf.xml"
+UPDATED_CONF="${EXIST_MODS}/conf.xml"
+if [ -f "$CUSTOM_CONF" ]
+then
+	cp "${CUSTOM_CONF}" "${UPDATED_CONF}"
+else
 	cp "${EXIST_CLONE}/conf.xml" "${UPDATED_CONF}"
 
 	cat << EOF | augtool --noload --noautoload
@@ -228,6 +236,14 @@ set /files/$UPDATED_CONF/exist/db-connection/#attribute/files $CONTAINER_EXIST_D
 set /files/$UPDATED_CONF/exist/db-connection/recovery/#attribute/journal-dir $CONTAINER_EXIST_DATA_PATH
 save
 EOF
+
+fi
+
+# should we minify the eXist-db we put into the Docker Image?
+if [ "$MINIMAL" == "YES" ]
+then
+	echo "Minifying to $EXIST_MINIMAL"
+	minify_exist "$EXIST_CLONE" "$EXIST_MINIMAL"
 fi
 
 # Build Docker image
@@ -237,12 +253,14 @@ then
 	EXPERIMENTAL_ARGS="--squash"
 fi
 
+BRANCH_NAME="$BRANCH_NAME$SUFFIX"
+
 if [ ! -f "$DOCKERFILE" ]
 then
-	echo "A Dockerfile for this combination of options does not exist. $DOCKERFILE does not exist." 
+	echo "A Dockerfile for this combination of options does not exist. $DOCKERFILE does not exist."
 else
 	docker build \
 	  --build-arg VCS_REF=`git rev-parse --short HEAD` \
 	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-	  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" --file "$DOCKERFILE" . 2> errors.log
+	  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" --file "$DOCKERFILE" . 1> build.log 2> errors.log
 fi
