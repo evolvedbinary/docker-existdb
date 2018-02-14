@@ -36,7 +36,7 @@ exit_with_usage() {
 	echo ""
 	echo "--no-experimental         Don't use experimental Docker features"
 	echo "--minimal                 Create a minimal eXist-db server Docker image"
-	echo "--supportfop              Add dependancies for FOP"
+	echo "--support-fop              Add dependancies for FOP"
 	echo "--no-recompile			Only perform docker build without rebuilding eXist-db"
 	echo "--config <conf.xml>		Supply custom conf.xml"
 	echo ""
