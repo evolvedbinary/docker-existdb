@@ -36,7 +36,6 @@ exit_with_usage() {
 	echo ""
 	echo "--no-experimental         Don't use experimental Docker features"
 	echo "--minimal                 Create a minimal eXist-db server Docker image"
-	echo "--support-fop              Add dependancies for FOP"
 	echo "--no-recompile			Only perform docker build without rebuilding eXist-db"
 	echo "--config <conf.xml>		Supply custom conf.xml"
 	echo ""
@@ -104,10 +103,10 @@ minify_exist() {
 }
 
 # Extract arguments
-EXPERIMENTAL=YES		# YES to use Docker experimental features, NO otherwise
-MINIMAL=NO			# YES to create a minimal eXist-db server Docker image,$ NO for a full image
-SHOW_USAGE=NO			# YES to show the usage message, NO otherwise
-NORECOMPILE=NO                   # YES to only run docker build without building exist-db again
+EXPERIMENTAL=YES          # YES to use Docker experimental features, NO otherwise
+MINIMAL=NO                # YES to create a minimal eXist-db server Docker image,$ NO for a full image
+SHOW_USAGE=NO             # YES to show the usage message, NO otherwise
+NORECOMPILE=NO            # YES to only run docker build without building exist-db again
 DOCKERFILE="Dockerfile"
 
 for i in "$@"
@@ -121,17 +120,14 @@ case $i in
     MINIMAL=YES
 	shift
     ;;
-    -f|--support-fop)
-    SUPPORTFOP=YES
-	shift
-    ;;
     -nr|--no-recompile)
     NORECOMPILE=YES
 	shift
     ;;
-	-c|--config)
-	shift
-	CUSTOM_CONF="$1"; shift;;
+    -c|--config)
+	CUSTOM_CONF="$1";
+        shift
+    ;;
     -h|--help)
     SHOW_USAGE=YES
 	shift
@@ -143,8 +139,7 @@ esac
 done
 
 if [ "$MINIMAL" == "YES" ]; then SUFFIX="$SUFFIX-minimal"; fi
-if [ "$SUPPORTFOP" == "YES" ]; then SUFFIX="$SUFFIX-fop"; fi
-DOCKERFILE="$DOCKERFILE$SUFFIX"
+DOCKERFILE="${DOCKERFILE}${SUFFIX}"
 BRANCH_NAME="${1}"
 
 CONTAINER_EXIST_PATH=/exist
@@ -253,7 +248,7 @@ then
 	EXPERIMENTAL_ARGS="--squash"
 fi
 
-BRANCH_NAME="$BRANCH_NAME$SUFFIX"
+BRANCH_NAME="${BRANCH_NAME}${SUFFIX}"
 
 if [ ! -f "$DOCKERFILE" ]
 then
@@ -262,5 +257,5 @@ else
 	docker build \
 	  --build-arg VCS_REF=`git rev-parse --short HEAD` \
 	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-	  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" --file "$DOCKERFILE" . 1> build.log 2> errors.log
+	  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" --file "${DOCKERFILE}" . 1> build.log 2> errors.log
 fi
