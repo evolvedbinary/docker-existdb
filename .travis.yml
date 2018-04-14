@@ -3,8 +3,9 @@ sudo: required
 language: java
 
 jdk:
+  - openjdk8
   - oraclejdk8
-#  - oraclejdk9
+  - oraclejdk9
 
 services:
   - docker
@@ -16,7 +17,7 @@ addons:
 
 before_install:
   - docker info
-  - ./build.sh --no-experimental eXist-3.5.0
+  - ./build.sh --no-experimental eXist-4.0.0
 
 script:
-  - docker run -it --rm evolvedbinary/exist-db:eXist-3.5.0 -Dexist.home=/exist -jar /exist/start.jar client --no-gui --local --xpath "system:get-version()"
+  - docker run -it --rm evolvedbinary/exist-db:eXist-4.0.0 -Dexist.home=/exist -jar /exist/start.jar client --no-gui --local --xpath "system:get-version()"
