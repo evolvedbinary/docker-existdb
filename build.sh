@@ -204,7 +204,7 @@ if [ "$NORECOMPILE" != "YES" ]
 then
 	# Build/Rebuild eXist-db
 	cd "${EXIST_CLONE}"
-	./build.sh clean && ./build.sh
+	EXIST_HOME="${EXIST_CLONE}" ./build.sh clean && EXIST_HOME="${EXIST_CLONE}" ./build.sh
 fi
 
 # Back to the root
