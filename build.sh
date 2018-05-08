@@ -23,7 +23,7 @@ set -e
 
 SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
-TARGET="${SCRIPT_PATH}/target"
+TARGET="${SCRIPT_PATH}"
 EXIST_CLONE="${TARGET}/exist"
 EXIST_MINIMAL="${TARGET}/exist-minimal"
 EXIST_MODS="${TARGET}"
@@ -67,7 +67,8 @@ minify_exist() {
 	fi
 
 	# copy sundries
-	cp "${EXIST_CLONE}/LICENSE" "${EXIST_CLONE}/README.md" "${EXIST_MINIMAL}"
+	# DP: why? add them to dockerignore would be more like it
+	cp "${EXIST_CLONE}/LICENSE" "${EXIST_CLONE}/client.properties" "${EXIST_MINIMAL}"
 
 	# copy base folders
 	cp -r "${EXIST_CLONE}/autodeploy" "${EXIST_CLONE}/bin" "${EXIST_MINIMAL}"
@@ -78,16 +79,18 @@ minify_exist() {
 	cp -r "${EXIST_CLONE}/lib/core" "${EXIST_CLONE}/lib/endorsed" "${EXIST_CLONE}/lib/optional" "${EXIST_CLONE}/lib/extensions" "${EXIST_CLONE}/lib/user" "${EXIST_CLONE}/lib/test" "${EXIST_MINIMAL}/lib"
 
 	# copy config files
+	# DP: this needs to go into src folder in docker repo
 	cp "${EXIST_CLONE}/descriptor.xml" "${EXIST_CLONE}/log4j2.xml" "${EXIST_CLONE}/mime-types.xml" "${EXIST_MINIMAL}"
 
 	# copy tools
+	# DP: do we need to keep ant or can it be discarded after the build?
 	mkdir -p "${EXIST_MINIMAL}/tools"
 	cp -r "${EXIST_CLONE}/tools/ant" "${EXIST_CLONE}/tools/aspectj" "${EXIST_CLONE}/tools/jetty" "${EXIST_MINIMAL}/tools"
-	
+
 	# copy webapp
 	mkdir -p "${EXIST_MINIMAL}/webapp/WEB-INF"
 	cp -r "${EXIST_CLONE}/webapp/404.html" "${EXIST_CLONE}/webapp/controller.xql" "${EXIST_CLONE}/webapp/logo.jpg" "${EXIST_CLONE}/webapp/resources" "${EXIST_MINIMAL}/webapp"
-	cp -r "${EXIST_CLONE}/webapp/WEB-INF/betterform-version.info" "${EXIST_CLONE}/webapp/WEB-INF/catalog.xml" "${EXIST_CLONE}/webapp/WEB-INF/controller-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/entities" "${EXIST_CLONE}/webapp/WEB-INF/web.xml" "${EXIST_MINIMAL}/webapp/WEB-INF"
+	cp -r "${EXIST_CLONE}/webapp/WEB-INF/betterform-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/betterform-version.info" "${EXIST_CLONE}/webapp/WEB-INF/catalog.xml" "${EXIST_CLONE}/webapp/WEB-INF/controller-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/dwr.xml" "${EXIST_CLONE}/webapp/WEB-INF/dwr20.dtd" "${EXIST_CLONE}/webapp/WEB-INF/entities" "${EXIST_CLONE}/webapp/WEB-INF/web.xml" "${EXIST_MINIMAL}/webapp/WEB-INF"
 
 	# copy extension libs
 	copy_extension_libs modules
@@ -102,6 +105,7 @@ minify_exist() {
 	copy_extension_libs indexes/lucene
 }
 
+# DP: I do not undertand what is going on here, and more importantly why here and not in dockerfile
 # Extract arguments
 EXPERIMENTAL=YES          # YES to use Docker experimental features, NO otherwise
 MINIMAL=NO                # YES to create a minimal eXist-db server Docker image,$ NO for a full image
@@ -242,20 +246,20 @@ then
 fi
 
 # Build Docker image
-EXPERIMENTAL_ARGS=""
-if [ "$EXPERIMENTAL" == "YES" ]
-then
-	EXPERIMENTAL_ARGS="--squash"
-fi
-
-BRANCH_NAME="${BRANCH_NAME}${SUFFIX}"
-
-if [ ! -f "$DOCKERFILE" ]
-then
-	echo "A Dockerfile for this combination of options does not exist. $DOCKERFILE does not exist."
-else
-	docker build \
-	  --build-arg VCS_REF=`git rev-parse --short HEAD` \
-	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-	  --rm --force-rm $EXPERIMENTAL_ARGS -t "evolvedbinary/exist-db:${BRANCH_NAME}" --file "${DOCKERFILE}" . 1> build.log 2> errors.log
-fi
+# EXPERIMENTAL_ARGS=""
+# if [ "$EXPERIMENTAL" == "YES" ]
+# then
+# 	EXPERIMENTAL_ARGS="--squash"
+# fi
+#
+# BRANCH_NAME="${BRANCH_NAME}${SUFFIX}"
+#
+# if [ ! -f "$DOCKERFILE" ]
+# then
+# 	echo "A Dockerfile for this combination of options does not exist. $DOCKERFILE does not exist."
+# else
+# 	docker build \
+# 	  --build-arg VCS_REF=`git rev-parse --short HEAD` \
+# 	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+# 	  --rm --force-rm $EXPERIMENTAL_ARGS -t "duncdrum/exist-db:${BRANCH_NAME}" --file "${DOCKERFILE}" . 1> build.log 2> errors.log
+# fi

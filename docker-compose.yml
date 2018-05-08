@@ -1,0 +1,20 @@
+version: '3.6'
+services:
+  exist:
+    image: duncdrum/exist-docker:latest
+    container_name: exist
+    ports:
+        - 8080:8080
+        - 8443:8443
+    networks:
+      - www
+    volumes:
+      - data:/exist-data
+volumes:
+  data:
+    driver: local
+    name: exist-data
+
+networks:
+  www:
+    driver: bridge

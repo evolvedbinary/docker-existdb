@@ -1,102 +1,106 @@
-# eXist-db Docker Image Builder
+# docker-eXist (WIP)
+minimal exist-db docker image with FO support
 
-[![Build Status](https://travis-ci.org/evolvedbinary/docker-existdb.svg?branch=master)](https://travis-ci.org/evolvedbinary/docker-existdb)
-[![](https://images.microbadger.com/badges/version/evolvedbinary/exist-db.svg)](https://microbadger.com/images/evolvedbinary/exist-db "Get your own version badge on microbadger.com")
-[![](https://images.microbadger.com/badges/image/evolvedbinary/exist-db.svg)](https://microbadger.com/images/evolvedbinary/exist-db "Get your own image badge on microbadger.com")
-[![License](https://img.shields.io/badge/license-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
+[![Build Status](https://travis-ci.org/duncdrum/exist-docker.svg?branch=master)](https://travis-ci.org/duncdrum/exist-docker)
 
-This repository contains the build files for creating [eXist-db](https://www.exist-db.org) [Docker](https://docker.com) images. Our Docker images are based on Google Cloud Platforms ["Distroless" Docker Images](https://github.com/GoogleCloudPlatform/distroless).
+This repository holds the source files for building a minimal docker image of the [exist-db](https://www.exist-db.org) xml database, automatically building from eXist's source code repo. It uses Google Cloud Platforms ["Distroless" Docker Images](https://github.com/GoogleCloudPlatform/distroless).
+
 
 ## Requirements
+*   [Docker](https://www.docker.com): `18-stable`
 
-1. [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
-2. [Git](https://git-scm.com/download)
-3. [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-4. [Augeas](http://augeas.net/) (Mac users: `brew install augeas`)
+## How to use
+Pre-build images are available on [DockerHub](https://hub.docker.com/r/duncdrum/exist-docker/). There are two channels:
+*   `stable` for the latest stable releases (recommended for production)
+*   `latest` for last commit to the development branch.
 
-## Building a Docker Image
-
-Pre-built [eXist-db Docker images](http://docker.io/evolvedbinary/exist-db) have been published on Docker Hub. You can skip to [Running an eXist-db Docker Image](#running) if you just want to use the provided Docker images.
-
-You can use the `./build.sh` script which will clone or update eXist-db from GitHub into the subfolder `target/exist`. You must specify either the branch or tag that you wish to build the Docker image for. Example usage:
-
+To download the image run:
 ```bash
-$ git clone https://github.com/evolvedbinary/docker-existdb.git
-
-$ cd docker-existdb
-$ ./build.sh eXist-4.3.0
+docker pull duncdrum/exist-docker:latest
+docker run -it -d -p 8080:8080 -p 8443:8443 duncdrum/exist-docker:latest
 ```
 
-### Building a Minimal eXist-db Docker Image
+You can now access exist via [localhost:8080](localhost:8080) in your browser.
+Try to stick with matching internal and external port assignments, to avoid unnecessary reloads and connection issues.
 
-The standard build uses a full-fat clone of eXist-db from GitHub which has been compiled. It is also possible to build a Docker Image which contains just the absolute minimum of eXist-db to run a server in Docker. If you want to build a minimal eXist-db Docker image, usage would look like:
-
+To stop the container issue:
 ```bash
-$ git clone https://github.com/evolvedbinary/docker-existdb.git
-
-$ cd docker-existdb
-$ ./build.sh --minimal eXist-4.3.0
+docker stop exist
 ```
 
-## Running an eXist-db Docker Image
+or if you omitted the `-d` flag earlier press `CTRL-C` inside the terminal showing the exist logs.
 
-<a name="running"/>
-eXist-db inside the Docker container is listening on TCP ports `8080` for HTTP and `8443` for HTTPS. To access these you have to map them to ports of your choosing on your host machine. For example if we wanted to interactively run an eXist-db Docker container and map the ports to `9080` and `9443` on your host system, you would run the following:
+### Interacting with the running container
 
 
+### Logging
+There os a slight modification to eXist's logger to ease access to the logs.
 ```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-4.3.0
+docker logs exist
 ```
 
-or if you wish to instead run the minimal eXist-db Docker image:
-
+### Development use via `docker-compose`
+Use of [docker compose](https://docs.docker.com/compose/) for local development or integration into a multi-container environment is strongly recommended.
 ```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-4.3.0-minimal
+# starting eXist
+docker-compose up -d
+# stop eXist
+docker-compose down
 ```
 
-You can now connect to the eXist-db running inside the Docker container from your host machine using ports `9080` and `9443`.
-
-To shutdown the eXist-db server running in the Docker container, you can either: 
-
-1. Simply press `Ctrl-C` in the interactive terminal hosting the Docker container.
-2. Run `$ docker stop <container name>`. You can get the "container name" by running `$ docker ps` and examining the "NAMES" column of the output. 
-
-### Note: Default username and password
-
-eXist inside the docker images is configured with the default username and password for the *admin* account, i.e.: username: `"admin"`, with password: `""`.
-
-If you are using this for anything serious, you should of course change the default password. The easiest way to do this, is probably to use cURL and a small amount of XQuery. For example, if you wanted to change from the default password to the password '"electricsheep"` you would run something like following from your console:
-
+Docker compose defines a data volume for eXist named `exist-data` so that changes to apps persist through reboots. You can inspect the volume via:
 ```bash
-$ curl -v http://admin:@localhost:9080/exist/rest/db/?_query=sm:passwd("admin", "electricsheep")
+docker volume inspect exist-data
 ```
 
-**However**, for the above to be executed correctly the query part of the URL needs to be URL Encoded, and if you are running this from bash, then the brackets need to be escaped, so you would actually run:
-
+### Caveat
+As with normal installations, the password for the default dba user `admin` is empty. Change it via the [usermanager](http://localhost:8080/exist/apps/usermanager/index.html) or set the password to e.g. `fancy-password` from docker CLI:
 ```bash
-$ curl -v http://admin:@localhost:9080/exist/rest/db/?_query=sm%3Apasswd\(%22admin%22%2C%20%22electricsheep%22\)
-```
-
-### Using local storage for eXist-db data
-
-You can also run a Docker container that uses a non-container filesystem for storage. One of the options is to use a folder on the host machine to hold the eXist-db data directory.
-This can be useful if you need to share data between the Container and the Host.
-
-**WARNING:** you should never write or read to the host folder whilst the container is running, otherwise you risk corrupting your eXist-db database.
-
-For example is you wanted to keep eXist-db's data in the host folder `/Users/bob/docker-exist-data/01` you would launch a container using something like:
-
-```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-4.3.0
-```
-
-or if you wish to instead run the minimal eXist-db Docker image:
-
-```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-4.3.0-minimal
+docker exec exist java -jar start.jar client -q -u admin -P admin -x \
+ 'sm:passwd("admin", "fancy-password")'
 ```
 
 
-**NOTE:** This approach adds further overhead to I/O performance.
+## Contributing and Modifying the Image
+This image uses a multi-stage build approach, so you can customize the compilation of eXist, or the final image.
 
+Do build the docker image run:
+```bash
+docker build .
+```
 
+### Available Arguments and Defaults
+(WIP)
+
+### Customizing the compilation of eXist
+To interact with the compilation of exist you can modify the `build.sh` file directly, or if you prefer to work via docker stop the build process after the builder stage. The build file is currently processed by aureas
+
+```bash
+docker build --target builder .
+```
+
+You can now interact with the build as if it were a regular linux host, e.g.:
+
+```bash
+docker cp container_name:/target/conf.xml ./src
+```
+
+### Customizing the final image
+If you wish to add additional volumes or want to configure the memory allocation of the final image you can either edit the `Dockerfile` or `docker-compose.yml` to suite your needs.
+
+You can also provide memory arguments to the docker run and build commands directly, eg.
+
+```bash
+docker run -it -d -e MAX_MEM=768 exist
+```
+configures exist to run with a heapsize of 768m. This can be helpful for using exist on small instances such as AWS micro instances.
+
+Since the distroless images does not provide a shell, the configuration files in the `/src` folder are there to simplify the configuration customization of your eXist instance. Make your customizations and uncomment the following lines in the Dockerfile.
+```bash
+# Add customized configuration files
+# ADD ./src/conf.xml .
+# ADD ./src/log4j2.xml .
+# ADD ./src/mime-types.xml .
+```
+
+These configuration files are supposed to serve as a template. While upstream updates from eXist are rare, they will be immediately mirrored here. Users are responsible to ensure that local changes in their forks / clones persist when syncing with this repo, e.g. by rebasing their own changes after pulling from upstream.
