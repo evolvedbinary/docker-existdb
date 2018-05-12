@@ -1,10 +1,15 @@
 FROM openjdk:8-jdk-alpine as builder
 
+# Build-time metadata as defined at http://label-schema.org
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
 LABEL name="minimal exist-db docker image with FO support" \
       vendor="exist-db.org" \
       maintainer="Duncan Paterson" \
       org.label-schema.url="https://exist-db.org" \
-      org.label-schema.build-date="$(date --iso)" \
+      org.label-schema.build-date="$BUILD_DATE" \
       org.label-schema.vcs-ref="$(git rev-parse --short HEAD)" \
       org.label-schema.vcs-url="https://github.com/duncdrum/exist-docker" \
       org.label-schema.schema-version="1.0"
