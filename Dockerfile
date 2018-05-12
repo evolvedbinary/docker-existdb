@@ -40,8 +40,8 @@ ARG CACHE_MEM
 
 # Adjust as necessary via run or build
 
-ENV MAX_MEM -Dorg.exist.db-connection.cacheSize=${MAX_MEM:-1856}M
-ENV CACHE_MEM -Xmx${CACHE_MEM:-256}M
+ENV CACHE_MEM -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M
+ENV MAX_MEM -Xmx${MAX_MEM:-1856}M
 
 # ENV for gcr
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
