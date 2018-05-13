@@ -9,8 +9,8 @@ LABEL name="minimal exist-db docker image with FO support" \
       vendor="exist-db.org" \
       maintainer="Duncan Paterson" \
       org.label-schema.url="https://exist-db.org" \
-      org.label-schema.build-date="$BUILD_DATE" \
-      org.label-schema.vcs-ref="$(git rev-parse --short HEAD)" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/duncdrum/exist-docker" \
       org.label-schema.schema-version="1.0"
 
@@ -78,7 +78,7 @@ COPY --from=builder /usr/lib/libpng16.so.16.34.0 /usr/lib/x86_64-linux-gnu/libpn
 COPY --from=builder /usr/lib/libfreetype.so.6.15.0 /usr/lib/x86_64-linux-gnu/libfreetype.so.6
 
 # does not seem to stick
-ENV LANG C.UTF-8
+ENV JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 
 # Port configuration
 EXPOSE 8080

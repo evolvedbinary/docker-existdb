@@ -33,7 +33,10 @@ docker stop exist
 or if you omitted the `-d` flag earlier press `CTRL-C` inside the terminal showing the exist logs.
 
 ### Interacting with the running container
-
+Containers build from this image run a periodical healtheck to make sure that exist is operating normally. If `docker ps` reports `unhealthy` you can see a more detailed report like this (where exist is the name of the container)
+```bash
+docker inspect --format='{{json .State.Health}}' exist
+```
 
 ### Logging
 There is a slight modification to eXist's logger to ease access to the logs via:
