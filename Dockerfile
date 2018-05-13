@@ -40,14 +40,8 @@ RUN apk add --no-cache --virtual .build-deps \
 
 FROM gcr.io/distroless/java:latest
 
-ARG MAX_MEM
 ARG CACHE_MEM
 ARG MAX_BROKER
-
-# Adjust as necessary via run or build
-ENV MAX_MEM -Xmx${MAX_MEM:-1856}M
-ENV CACHE_MEM -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M
-ENV MAX_BROKER -Dorg.exist.db-connection.pool.max=${MAX_BROKER:-20}
 
 # ENV for gcr
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
@@ -79,11 +73,15 @@ COPY --from=builder /usr/lib/libfreetype.so.6.15.0 /usr/lib/x86_64-linux-gnu/lib
 
 ENV JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 
+# Adjust as necessary via run or build
+ENV CACHE_MEM -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M
+ENV MAX_BROKER -Dorg.exist.db-connection.pool.max=${MAX_BROKER:-30}
+
 # Port configuration
 EXPOSE 8080
 EXPOSE 8443
 
 HEALTHCHECK CMD [ "java", "-jar", "start.jar", "client", "--no-gui",  "--xpath", "system:get-version()" ]
 
-ENTRYPOINT [ "java", "-Djava.awt.headless=true", "-jar", "start.jar", "jetty" ]
-CMD [ "${MAX_BROKER}", "${CACHE_MEM}", "${MAX_MEM}" ]
+ENTRYPOINT [ "java", "-Djava.awt.headless=true", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-XX:MaxRAMFraction=1", "-jar", "start.jar", "jetty"]
+CMD [ "${CACHE_MEM}", "${MAX_BROKER}" ]

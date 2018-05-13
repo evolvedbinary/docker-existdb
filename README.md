@@ -80,7 +80,15 @@ The following arguments can be passed when issuing `docker run` commands. The `D
 
 ```
 
-*   MAX_MEM:
+#### Memory
+
+This image uses `-XX:MaxRAMFraction=1` to determine the maximum memory available to the JVM. For production use it is recommended to increase the value to `2` or even `4`. The values express ratios, so 2 = 1/2, 4= 1/4 etc.
+
+You can specify the memory allocation of the container, e.g. to 600mb like this:
+```bash
+docker run -m 600m …
+```
+
 *   CACHE_MEM:
 *   MAX_BROKER:
 
