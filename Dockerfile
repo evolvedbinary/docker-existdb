@@ -45,9 +45,8 @@ ARG CACHE_MEM
 ARG MAX_BROKER
 
 # Adjust as necessary via run or build
-
-ENV CACHE_MEM -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M
 ENV MAX_MEM -Xmx${MAX_MEM:-1856}M
+ENV CACHE_MEM -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M
 ENV MAX_BROKER -Dorg.exist.db-connection.pool.max=${MAX_BROKER:-20}
 
 # ENV for gcr
@@ -77,14 +76,14 @@ COPY --from=builder /usr/lib/liblcms2.so.2.0.8 /usr/lib/x86_64-linux-gnu/liblcms
 COPY --from=builder /usr/lib/libpng16.so.16.34.0 /usr/lib/x86_64-linux-gnu/libpng16.so.16
 COPY --from=builder /usr/lib/libfreetype.so.6.15.0 /usr/lib/x86_64-linux-gnu/libfreetype.so.6
 
-# does not seem to stick
+
 ENV JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8
 
 # Port configuration
 EXPOSE 8080
 EXPOSE 8443
 
-HEALTHCHECK CMD ["java", "-jar", "start.jar", "client", "--no-gui",  "--xpath", "system:get-version()"]
+HEALTHCHECK CMD [ "java", "-jar", "start.jar", "client", "--no-gui",  "--xpath", "system:get-version()" ]
 
-ENTRYPOINT ["java", "-Djava.awt.headless=true", "-jar", "start.jar", "jetty"]
-CMD ["${CACHE_MEM}", "${MAX_BROKER}", "${MAX_MEM}"]
+ENTRYPOINT [ "java", "-Djava.awt.headless=true", "-jar", "start.jar", "jetty" ]
+CMD [ "${MAX_BROKER}", "${CACHE_MEM}", "${MAX_MEM}" ]

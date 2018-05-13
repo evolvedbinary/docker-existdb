@@ -9,7 +9,7 @@ before_install:
   - docker build -t duncdrum/exist-docker .
   - docker run -it -d --name exist -p 8080:8080 duncdrum/exist-docker
 script:
-  - docker exec exist java -version
-  - docker exec exist java -jar start.jar client --no-gui  --xpath "system:get-version()"
-  - docker logs exist
   - docker ps -a
+  - docker logs exist
+  - docker exec exist java -version
+  - docker exec exist java -Dexist.home=/exist -jar /exist/start.jar client --local --no-gui --xpath "system:get-version()"
