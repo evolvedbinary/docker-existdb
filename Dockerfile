@@ -42,11 +42,13 @@ FROM gcr.io/distroless/java:latest
 
 ARG MAX_MEM
 ARG CACHE_MEM
+ARG MAX_BROKER
 
 # Adjust as necessary via run or build
 
 ENV CACHE_MEM -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M
 ENV MAX_MEM -Xmx${MAX_MEM:-1856}M
+ENV MAX_BROKER -Dorg.exist.db-connection.pool.max=${MAX_BROKER:-20}
 
 # ENV for gcr
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
@@ -82,7 +84,7 @@ ENV LANG C.UTF-8
 EXPOSE 8080
 EXPOSE 8443
 
-HEALTHCHECK CMD java -Dexist.home=/exist -jar /exist/start.jar client --no-gui --local --xpath "system:get-version()"
+HEALTHCHECK CMD ["java", "-jar", "start.jar", "client", "--no-gui",  "--xpath", "system:get-version()"]
 
 ENTRYPOINT ["java", "-Djava.awt.headless=true", "-jar", "start.jar", "jetty"]
-CMD ["${CACHE_MEM}", "${MAX_MEM}" ]
+CMD ["${CACHE_MEM}", "${MAX_BROKER}", "${MAX_MEM}"]

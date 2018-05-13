@@ -36,7 +36,7 @@ or if you omitted the `-d` flag earlier press `CTRL-C` inside the terminal showi
 
 
 ### Logging
-There os a slight modification to eXist's logger to ease access to the logs.
+There is a slight modification to eXist's logger to ease access to the logs via:
 ```bash
 docker logs exist
 ```
@@ -50,18 +50,18 @@ docker-compose up -d
 docker-compose down
 ```
 
-Docker compose defines a data volume for eXist named `exist-data` so that changes to apps persist through reboots. You can inspect the volume via:
+Docker compose defines a data volume for eXist named `exist-data` so that changes to the container's apps persist through reboots. You can inspect the volume via:
 ```bash
 docker volume inspect exist-data
 ```
 
 ### Caveat
-As with normal installations, the password for the default dba user `admin` is empty. Change it via the [usermanager](http://localhost:8080/exist/apps/usermanager/index.html) or set the password to e.g. `fancy-password` from docker CLI:
+As with normal installations, the password for the default dba user `admin` is empty. Change it via the [usermanager](http://localhost:8080/exist/apps/usermanager/index.html) or set the password to e.g. `123` from docker CLI:
 ```bash
 docker exec exist java -jar start.jar client -q -u admin -P admin -x \
- 'sm:passwd("admin", "fancy-password")'
+ 'sm:passwd("admin", "123")'
 ```
-
+Note: `123` is not a good password.
 
 ## Contributing and Modifying the Image
 This image uses a multi-stage build approach, so you can customize the compilation of eXist, or the final image.
@@ -72,7 +72,14 @@ docker build .
 ```
 
 ### Available Arguments and Defaults
-(WIP)
+The following arguments can be passed when issuing `docker run` commands. The `Dockerfile` provides *sensible*™ defaults during build. To override them run:
+```bash
+
+```
+
+*   MAX_MEM:
+*   CACHE_MEM:
+*   MAX_BROKER:
 
 ### Customizing the compilation of eXist
 To interact with the compilation of exist you can modify the `build.sh` file directly, or if you prefer to work via docker stop the build process after the builder stage. The build file is currently processed by aureas
