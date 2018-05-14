@@ -69,8 +69,7 @@ docker-compose pull
 ### Caveat
 As with normal installations, the password for the default dba user `admin` is empty. Change it via the [usermanager](http://localhost:8080/exist/apps/usermanager/index.html) or set the password to e.g. `123` from docker CLI:
 ```bash
-docker exec exist java -jar start.jar client -q -u admin -P admin -x \
- 'sm:passwd("admin", "123")'
+docker exec exist java -jar start.jar client -q -u admin -P '' -x 'sm:passwd("admin", "123")'
 ```
 Note: `123` is not a good password.
 
