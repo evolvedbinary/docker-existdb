@@ -31,12 +31,15 @@ RUN apk add --no-cache --virtual .build-deps \
         augeas \
         bash \
         curl \
-        git \
-        ttf-dejavu \
+        git \        
         && bash ./build.sh --minimal ${BRANCH} \
         && rm -rf tmp \
         && apk del .build-deps
 
+FROM openjdk:8-jdk-slim as jdk
+# Remove assistive_technologies capabilities from jdk
+# Needs to be done in JDK image and copied over due to lack of shell in the gcr.io/distroless/java
+RUN sed -i "s|^assistive_technologies|#assistive_technologies|" /etc/java-8-openjdk/accessibility.properties
 
 FROM gcr.io/distroless/java:latest
 
@@ -50,6 +53,25 @@ ENV DATA_DIR /exist-data
 
 # VOLUME ${DATA_DIR}
 
+# Copy over dependancies for Apache FOP, which are lacking from the JRE supplied in gcr.io/distroless/java
+# Make sure java versions match both in JDK image and the distroless image
+COPY --from=jdk /usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/lib/amd64/libfontmanager.so /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/
+COPY --from=jdk /usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/lib/amd64/libjavalcms.so /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/
+COPY --from=jdk /usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.8 /usr/lib/x86_64-linux-gnu/liblcms2.so.2
+COPY --from=jdk /usr/lib/x86_64-linux-gnu/libfreetype.so.6.12.3 /usr/lib/x86_64-linux-gnu/libfreetype.so.6
+COPY --from=jdk /usr/lib/x86_64-linux-gnu/libpng16.so.16.28.0 /usr/lib/x86_64-linux-gnu/libpng16.so.16
+
+# Copy over dependancies for Apache Batik (used by Apache FOP to handle SVG rendering)
+COPY --from=jdk /usr/lib/x86_64-linux-gnu/libfontconfig.so.1.8.0 /usr/lib/x86_64-linux-gnu/libfontconfig.so.1
+COPY --from=jdk /usr/share/fontconfig /usr/share/fontconfig
+COPY --from=jdk /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/dejavu
+COPY --from=jdk /lib/x86_64-linux-gnu/libexpat.so.1 /lib/x86_64-linux-gnu/libexpat.so.1
+COPY --from=jdk /etc/fonts /etc/fonts
+
+# Copy over accessibility.properties from JDK, where assistive_technologies have been removed, or it
+# will throw on errors in SVG processing
+COPY --from=jdk /etc/java-8-openjdk/accessibility.properties /etc/java-8-openjdk/accessibility.properties
+
 WORKDIR ${EXIST_HOME}
 
 # Add customized configuration files
@@ -61,14 +83,6 @@ ADD ./src/log4j2.xml .
 COPY --from=builder /target/exist-minimal .
 COPY --from=builder /target/conf.xml ./conf.xml
 COPY --from=builder /target/exist/webapp/WEB-INF/data ${DATA_DIR}
-
-# Copy over dependancies for Apache FOP, which are lacking from gcr image
-
-COPY --from=builder /usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/libfontmanager.so /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/
-COPY --from=builder /usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/libjavalcms.so /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/
-COPY --from=builder /usr/lib/liblcms2.so.2.0.8 /usr/lib/x86_64-linux-gnu/liblcms2.so.2
-COPY --from=builder /usr/lib/libpng16.so.16.34.0 /usr/lib/x86_64-linux-gnu/libpng16.so.16
-COPY --from=builder /usr/lib/libfreetype.so.6.15.0 /usr/lib/x86_64-linux-gnu/libfreetype.so.6
 
 
 # Configure JVM for us in Container (here there be dragons)
