@@ -31,7 +31,7 @@ RUN apk add --no-cache --virtual .build-deps \
         augeas \
         bash \
         curl \
-        git \        
+        git \
         && bash ./build.sh --minimal ${BRANCH} \
         && rm -rf tmp \
         && apk del .build-deps

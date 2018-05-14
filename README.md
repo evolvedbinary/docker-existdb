@@ -1,4 +1,4 @@
-eXist# docker-eXist (WIP)
+# eXist docker-eXist (WIP)
 minimal exist-db docker image with FO support
 
 [![Build Status](https://travis-ci.org/duncdrum/exist-docker.svg?branch=master)](https://travis-ci.org/duncdrum/exist-docker)
