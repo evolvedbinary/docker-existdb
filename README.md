@@ -33,7 +33,7 @@ docker stop exist
 or if you omitted the `-d` flag earlier press `CTRL-C` inside the terminal showing the exist logs.
 
 ### Interacting with the running container
-Containers build from this image run a periodical healtheck to make sure that exist is operating normally. If `docker ps` reports `unhealthy` you can see a more detailed report like this (where exist is the name of the container)
+Containers build from this image run a periodical healtheck to make sure that exist is operating normally. If `docker ps` reports `unhealthy` you can see a more detailed report  (where `exist` is the name of the container)
 ```bash
 docker inspect --format='{{json .State.Health}}' exist
 ```
@@ -43,6 +43,7 @@ There is a slight modification to eXist's logger to ease access to the logs via:
 ```bash
 docker logs exist
 ```
+This works best when providing the `-t` flag when running an image.
 
 ### Development use via `docker-compose`
 Use of [docker compose](https://docs.docker.com/compose/) for local development or integration into a multi-container environment is strongly recommended.
@@ -58,6 +59,13 @@ Docker compose defines a data volume for eXist named `exist-data` so that change
 docker volume inspect exist-data
 ```
 
+You can configure additional volumes e.g. for backups, or additional services such as an nginx reverse proxy by modifying the `docker-compose.yml`, to suite your needs.
+
+To update the exist image from a newer version
+```bash
+docker-compose pull
+```
+
 ### Caveat
 As with normal installations, the password for the default dba user `admin` is empty. Change it via the [usermanager](http://localhost:8080/exist/apps/usermanager/index.html) or set the password to e.g. `123` from docker CLI:
 ```bash
@@ -66,56 +74,41 @@ docker exec exist java -jar start.jar client -q -u admin -P admin -x \
 ```
 Note: `123` is not a good password.
 
-## Contributing and Modifying the Image
-This image uses a multi-stage build approach, so you can customize the compilation of eXist, or the final image.
-
-Do build the docker image run:
+## Building the Image
+To build the docker image run:
 ```bash
 docker build .
 ```
 
-### Available Arguments and Defaults
-The following arguments can be passed when issuing `docker run` commands. The `Dockerfile` provides *sensible*™ defaults during build. To override them run:
-```bash
+This will build an eXist image with sensible defaults as specified in the dockerfile. The image uses a multi-stage building approach, so you can customize the compilation of eXist, or the final image.
 
-```
-
-#### Memory
-
-This image uses `-XX:MaxRAMFraction=1` to determine the maximum memory available to the JVM. For production use it is recommended to increase the value to `2` or even `4`. The values express ratios, so 2 = 1/2, 4= 1/4 etc.
-
-You can specify the memory allocation of the container, e.g. to 600mb like this:
-```bash
-docker run -m 600m …
-```
-
-*   CACHE_MEM:
-*   MAX_BROKER:
-
-### Customizing the compilation of eXist
-To interact with the compilation of exist you can modify the `build.sh` file directly, or if you prefer to work via docker stop the build process after the builder stage. The build file is currently processed by aureas
+To interact with the compilation of exist you can either modify the `build.sh` file directly, or if you prefer to work via docker stop the build process after the builder stage, via
 
 ```bash
 docker build --target builder .
+# Do your thing…
+docker commit…
 ```
 
-You can now interact with the build as if it were a regular linux host, e.g.:
+### Available Arguments and Defaults
+eXist's cache size and maximum brokers can be configured at built time using the following syntax.
+```bash
+# !This has no effect!
+docker build --build-arg MAX_CACHE=312 MAX_BROKER=15 .
+```
+
+NOTE: Do to the fact that the final images does not provide a shell setting ENV variables for exist has no effect.
+```bash
+docker run -it -d -p8080:8080 -e MAX_BROKER=10 ae4d6d653d30
+```
+
+The preferred method to change your images to a customized cache or broker configuration is to edit the default values inside the dockerfile used for building your images.
 
 ```bash
-docker cp container_name:/target/conf.xml ./src
+ARG MAX_BROKER=10
 ```
 
-### Customizing the final image
-If you wish to add additional volumes or want to configure the memory allocation of the final image you can either edit the `Dockerfile` or `docker-compose.yml` to suite your needs.
-
-You can also provide memory arguments to the docker run and build commands directly, eg.
-
-```bash
-docker run -it -d -e MAX_MEM=768 exist
-```
-configures exist to run with a heapsize of 768m. This can be helpful for using exist on small instances such as AWS micro instances.
-
-Since the distroless images does not provide a shell, the configuration files in the `/src` folder are there to simplify the configuration customization of your eXist instance. Make your customizations and uncomment the following lines in the Dockerfile.
+Alternatively you can edit, the configuration files in the `/src` folder to customize the eXist instance. Make your customizations and uncomment the following lines in the Dockerfile.
 ```bash
 # Add customized configuration files
 # ADD ./src/conf.xml .
@@ -123,4 +116,25 @@ Since the distroless images does not provide a shell, the configuration files in
 # ADD ./src/mime-types.xml .
 ```
 
-These configuration files are supposed to serve as a template. While upstream updates from eXist are rare, they will be immediately mirrored here. Users are responsible to ensure that local changes in their forks / clones persist when syncing with this repo, e.g. by rebasing their own changes after pulling from upstream.
+These files only serve as a template. While upstream updates from eXist to them are rare, such upstream changes will be immediately mirrored here. Users are responsible to ensure that local changes in their forks / clones persist when syncing with this repo, e.g. by rebasing their own changes after pulling from upstream.
+
+#### JVM configuration
+This image uses advanced JVM configuration to set set the heapsize. Avoid passing `-Xmx` arguments to eXist's jvm to set maximum memory. This will lead to frequent crashes since JAVA and Docker are not on the same page concerning available memory. Only use `-XX:MaxRAMFraction=1` to modify the memory available to the JVM. For production use it is recommended to increase the value to `2` or even `4`. The values express ratios, so setting it to `2` means half the container's memory will be available to the JVM, '4' means ¼,  etc.
+
+To allocate e.g. 600mb to the container around the JVM use:
+```bash
+docker run -m 600m …
+```
+
+### Interacting with image via CLI
+You can now interact with a running container as if it were a regular linux host, the name of the container in these examples is `exist`:
+
+```bash
+# Copy my-data.xml from running exist to local folder
+docker cp exist:/exist/data/my-data.xml ./my-folder
+# Using java syntax on a running exist instances
+docker exec exist java -jar start.jar client --no-gui --xpath "
+system:get-memory-max()"
+# Interacting with the jvm
+docker exec exist java -version
+```
