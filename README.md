@@ -1,4 +1,4 @@
-# eXist docker-eXist (WIP)
+# docker-eXist (WIP)
 minimal exist-db docker image with FO support
 
 [![Build Status](https://travis-ci.org/duncdrum/exist-docker.svg?branch=master)](https://travis-ci.org/duncdrum/exist-docker)
@@ -13,7 +13,7 @@ This repository holds the source files for building a minimal docker image of th
 
 ## How to use
 Pre-build images are available on [DockerHub](https://hub.docker.com/r/duncdrum/exist-docker/). There are two channels:
-*   `stable` for the latest stable releases (recommended for production)
+*   `stable` for the latest stable releases (coming soon™)
 *   `latest` for last commit to the development branch.
 
 To download the image run:
@@ -130,7 +130,7 @@ You can now interact with a running container as if it were a regular linux host
 
 ```bash
 # Copy my-data.xml from running eXist to local folder
-docker cp exist-data:/apps/my-app/data/my-data.xml ./my-folder
+docker cp exist:/exist-data/apps/my-app/data/my-data.xml ./my-folder
 
 # Using java syntax on a running eXist instances
 docker exec exist java -jar start.jar client --no-gui --xpath "system:get-memory-max()"
