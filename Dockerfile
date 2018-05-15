@@ -1,18 +1,5 @@
 FROM openjdk:8-jdk-alpine as builder
 
-# Build-time metadata as defined at http://label-schema.org
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VERSION
-
-LABEL name="minimal exist-db docker image with FO support" \
-      vendor="exist-db.org" \
-      maintainer="Duncan Paterson" \
-      org.label-schema.url="https://exist-db.org" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/duncdrum/exist-docker" \
-      org.label-schema.schema-version="1.0"
 
 # arguments can be referenced at build time
 ARG BRANCH=develop
@@ -45,6 +32,22 @@ FROM gcr.io/distroless/java:latest
 
 ARG CACHE_MEM
 ARG MAX_BROKER
+
+# Build-time metadata as defined at http://label-schema.org
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name="exist-docker" \
+      org.label-schema.description="minimal exist-db docker image with FO support" \
+      org.label-schema.url="https://exist-db.org" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/duncdrum/exist-docker" \
+      org.label-schema.vendor="exist-db" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
+
 
 # ENV for gcr
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
