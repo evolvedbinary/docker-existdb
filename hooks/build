@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # $IMAGE_NAME var is injected into the build so the tag is correct.
 

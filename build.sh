@@ -67,7 +67,6 @@ minify_exist() {
 	fi
 
 	# copy sundries
-	# DP: why? add them to dockerignore would be more like it
 	cp "${EXIST_CLONE}/LICENSE" "${EXIST_CLONE}/client.properties" "${EXIST_MINIMAL}"
 
 	# copy base folders
@@ -79,7 +78,6 @@ minify_exist() {
 	cp -r "${EXIST_CLONE}/lib/core" "${EXIST_CLONE}/lib/endorsed" "${EXIST_CLONE}/lib/optional" "${EXIST_CLONE}/lib/extensions" "${EXIST_CLONE}/lib/user" "${EXIST_CLONE}/lib/test" "${EXIST_MINIMAL}/lib"
 
 	# copy config files
-	# DP: this needs to go into src folder in docker repo
 	cp "${EXIST_CLONE}/descriptor.xml" "${EXIST_CLONE}/log4j2.xml" "${EXIST_CLONE}/mime-types.xml" "${EXIST_MINIMAL}"
 
 	# copy tools
@@ -107,7 +105,7 @@ minify_exist() {
 
 # DP: I do not undertand what is going on here, and more importantly why here and not in dockerfile
 # Extract arguments
-EXPERIMENTAL=YES          # YES to use Docker experimental features, NO otherwise
+EXPERIMENTAL=NO          # YES to use Docker experimental features, NO otherwise
 MINIMAL=NO                # YES to create a minimal eXist-db server Docker image,$ NO for a full image
 SHOW_USAGE=NO             # YES to show the usage message, NO otherwise
 NORECOMPILE=NO            # YES to only run docker build without building exist-db again
@@ -146,7 +144,7 @@ if [ "$MINIMAL" == "YES" ]; then SUFFIX="$SUFFIX-minimal"; fi
 DOCKERFILE="${DOCKERFILE}${SUFFIX}"
 BRANCH_NAME="${1}"
 
-CONTAINER_EXIST_PATH=/exist
+# CONTAINER_EXIST_PATH=/exist
 CONTAINER_EXIST_DATA_PATH=/exist-data
 
 if [ "$SHOW_USAGE" == "YES" ]

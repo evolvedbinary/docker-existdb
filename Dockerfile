@@ -24,8 +24,7 @@ RUN apk add --no-cache --virtual .build-deps \
         && apk del .build-deps
 
 FROM openjdk:8-jdk-slim as jdk
-# Remove assistive_technologies capabilities from jdk
-# Needs to be done in JDK image and copied over due to lack of shell in the gcr.io/distroless/java
+# Remove assistive_technologies capabilities from jdk (see below)
 RUN sed -i "s|^assistive_technologies|#assistive_technologies|" /etc/java-8-openjdk/accessibility.properties
 
 FROM gcr.io/distroless/java:latest
@@ -36,13 +35,13 @@ ARG MAX_BROKER
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
 ARG VCS_REF
-ARG VERSION
+ARG VERSION="4.2.0-SNAPSHOT"
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
+LABEL org.label-schema.build-date=${BUILD_DATE} \
       org.label-schema.name="exist-docker" \
       org.label-schema.description="minimal exist-db docker image with FO support" \
       org.label-schema.url="https://exist-db.org" \
-      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-ref=${VCS_REF} \
       org.label-schema.vcs-url="https://github.com/duncdrum/exist-docker" \
       org.label-schema.vendor="exist-db" \
       org.label-schema.version=$VERSION \
@@ -56,23 +55,22 @@ ENV DATA_DIR /exist-data
 
 # VOLUME ${DATA_DIR}
 
-# Copy over dependancies for Apache FOP, which are lacking from the JRE supplied in gcr.io/distroless/java
-# Make sure java versions match both in JDK image and the distroless image
+# Copy over dependancies for Apache FOP, missing from gcr's JRE
+# Make sure JDK and gcr have matching java versions
 COPY --from=jdk /usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/lib/amd64/libfontmanager.so /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/
 COPY --from=jdk /usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/lib/amd64/libjavalcms.so /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/
 COPY --from=jdk /usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.8 /usr/lib/x86_64-linux-gnu/liblcms2.so.2
 COPY --from=jdk /usr/lib/x86_64-linux-gnu/libfreetype.so.6.12.3 /usr/lib/x86_64-linux-gnu/libfreetype.so.6
 COPY --from=jdk /usr/lib/x86_64-linux-gnu/libpng16.so.16.28.0 /usr/lib/x86_64-linux-gnu/libpng16.so.16
 
-# Copy over dependancies for Apache Batik (used by Apache FOP to handle SVG rendering)
+# Copy dependancies for Apache Batik (used by Apache FOP to handle SVG rendering)
 COPY --from=jdk /usr/lib/x86_64-linux-gnu/libfontconfig.so.1.8.0 /usr/lib/x86_64-linux-gnu/libfontconfig.so.1
 COPY --from=jdk /usr/share/fontconfig /usr/share/fontconfig
 COPY --from=jdk /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/dejavu
 COPY --from=jdk /lib/x86_64-linux-gnu/libexpat.so.1 /lib/x86_64-linux-gnu/libexpat.so.1
 COPY --from=jdk /etc/fonts /etc/fonts
 
-# Copy over accessibility.properties from JDK, where assistive_technologies have been removed, or it
-# will throw on errors in SVG processing
+# Copy previously removed accessibility.properties from JDK, or it will throw errors in SVG processing
 COPY --from=jdk /etc/java-8-openjdk/accessibility.properties /etc/java-8-openjdk/accessibility.properties
 
 WORKDIR ${EXIST_HOME}
@@ -92,8 +90,7 @@ COPY --from=builder /target/exist/webapp/WEB-INF/data ${DATA_DIR}
 ENV JAVA_TOOL_OPTIONS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+UseG1GC -XX:+UseStringDeduplication -Dfile.encoding=UTF8 -Djava.awt.headless=true -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M -Dorg.exist.db-connection.pool.max=${MAX_BROKER:-20}
 
 # Port configuration
-EXPOSE 8080
-EXPOSE 8443
+EXPOSE 8080 8443
 
 HEALTHCHECK CMD [ "java", "-jar", "start.jar", "client", "--no-gui",  "--xpath", "system:get-version()" ]
 

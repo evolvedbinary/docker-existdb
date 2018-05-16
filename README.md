@@ -5,6 +5,7 @@ minimal exist-db docker image with FO support
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ace7cb88e9934b5f9ae772e981db177f)](https://www.codacy.com/app/duncdrum/exist-docker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=duncdrum/exist-docker&amp;utm_campaign=Badge_Grade)
 [![](https://images.microbadger.com/badges/image/duncdrum/exist-docker.svg)](https://microbadger.com/images/duncdrum/exist-docker "Get your own image badge on microbadger.com")
 [![](https://images.microbadger.com/badges/version/duncdrum/exist-docker.svg)](https://microbadger.com/images/duncdrum/exist-docker "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/commit/duncdrum/exist-docker.svg)](https://microbadger.com/images/duncdrum/exist-docker "Get your own commit badge on microbadger.com")
 
 This repository holds the source files for building a minimal docker image of the [exist-db](https://www.exist-db.org) xml database, automatically building from eXist's source code repo. It uses Google Cloud Platforms ["Distroless" Docker Images](https://github.com/GoogleCloudPlatform/distroless).
 
