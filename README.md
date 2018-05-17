@@ -97,7 +97,7 @@ eXist's cache size and maximum brokers can be configured at built time using the
 docker build --build-arg MAX_CACHE=312 MAX_BROKER=15 .
 ```
 
-NOTE: Do to the fact that the final images does not provide a shell setting ENV variables for eXist has no effect.
+NOTE: Due to the fact that the final images does not provide a shell setting ENV variables for eXist has no effect.
 ```bash
 # !This has no effect!
 docker run -it -d -p8080:8080 -e MAX_BROKER=10 ae4d6d653d30
@@ -120,12 +120,14 @@ Alternatively you can edit, the configuration files in the `/src` folder to cust
 These files only serve as a template. While upstream updates from eXist to them are rare, such upstream changes will be immediately mirrored here. Users are responsible to ensure that local changes in their forks / clones persist when syncing with this repo, e.g. by rebasing their own changes after pulling from upstream.
 
 #### JVM configuration
-This image uses advanced JVM configuration to set set the heap-size. Avoid passing `-Xmx` arguments to eXist's JVM to set maximum memory. This will lead to frequent crashes since java and Docker are not on the same page concerning available memory. Only use `-XX:MaxRAMFraction=1` to modify the memory available to the JVM. For production use it is recommended to increase the value to `2` or even `4`. The values express ratios, so setting it to `2` means half the container's memory will be available to the JVM, '4' means ¼,  etc.
+This image uses advanced JVM configuration to set set the heap-size. Avoid passing `-Xmx` arguments to eXist's JVM to set maximum memory. This will lead to frequent crashes since java and Docker are not on the same page concerning available memory. Instead, use `-XX:MaxRAMFraction=1` to modify the memory available to the JVM. For production use it is recommended to increase the value to `2` or even `4`. The values express ratios, so setting it to `2` means half the container's memory will be available to the JVM, '4' means ¼,  etc.
 
 To allocate e.g. 600mb to the container around the JVM use:
 ```bash
 docker run -m 600m …
 ```
+
+Lastly, this images uses a new garbage collection mechanism "garbage first (G1)" `-XX:+UseG1GC` and enables string deduplication `-XX:+UseStringDeduplication` to improve performance. To disable or further tweak these features edit the `JAVA_TOOL_OPTIONS` env variable inside the Dockerfile or when running the image. As always when using the latest and greatest, YMMV. Feedback about real world experiences with this features in connection with eXist is very much welcome.
 
 ### Interacting with image via CLI
 You can now interact with a running container as if it were a regular linux host, the name of the container in these examples is `exist`:
