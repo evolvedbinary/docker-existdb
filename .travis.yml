@@ -8,8 +8,10 @@ services:
 before_install:
   - docker build -t duncdrum/exist-docker .
   - docker run -it -d --name exist -p 8080:8080 duncdrum/exist-docker
+
+before_script:
+  - sleep 35
 script:
-  - docker ps -a
-  - docker logs exist
   - docker exec exist java -version
-  - docker exec exist java -Dexist.home=/exist -jar /exist/start.jar client --local --no-gui --xpath "system:get-version()"
+  - docker logs exist
+  - docker ps -a
