@@ -35,7 +35,7 @@ ARG MAX_BROKER
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
 ARG VCS_REF
-ARG VERSION="4.2.0-SNAPSHOT"
+ARG VERSION="4.3.0-SNAPSHOT"
 
 LABEL org.label-schema.build-date=${BUILD_DATE} \
       org.label-schema.name="exist-docker" \
