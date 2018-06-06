@@ -75,18 +75,18 @@ COPY --from=jdk /etc/java-8-openjdk/accessibility.properties /etc/java-8-openjdk
 
 WORKDIR ${EXIST_HOME}
 
-# Optionally add customized configuration files
-# ADD ./src/conf.xml .
-ADD ./src/log4j2.xml .
-# ADD ./src/mime-types.xml .
 
 # Copy compiled exist-db files
 COPY --from=builder /target/exist-minimal .
 COPY --from=builder /target/conf.xml ./conf.xml
 COPY --from=builder /target/exist/webapp/WEB-INF/data ${DATA_DIR}
 
+# Optionally add customised configuration files
+# ADD ./src/conf.xml .
+ADD ./src/log4j2.xml .
+# ADD ./src/mime-types.xml .
 
-# Configure JVM for us in Container (here there be dragons)
+# Configure JVM for us in container (here there be dragons)
 ENV JAVA_TOOL_OPTIONS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+UseG1GC -XX:+UseStringDeduplication -Dfile.encoding=UTF8 -Djava.awt.headless=true -Dorg.exist.db-connection.cacheSize=${CACHE_MEM:-256}M -Dorg.exist.db-connection.pool.max=${MAX_BROKER:-20}
 
 # Port configuration
