@@ -53,7 +53,7 @@
         - http://exist-db.org/exist/apps/doc/documentation.xml
         - http://atomic.exist-db.org/
         
-    Version: 4.3.0-SNAPSHOT
+    Version: 5.0.0-SNAPSHOT
 
 -->
 <exist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema/conf.xsd">
