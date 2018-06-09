@@ -88,10 +88,11 @@ minify_exist() {
 	# copy webapp
 	mkdir -p "${EXIST_MINIMAL}/webapp/WEB-INF"
 	cp -r "${EXIST_CLONE}/webapp/404.html" "${EXIST_CLONE}/webapp/controller.xql" "${EXIST_CLONE}/webapp/logo.jpg" "${EXIST_CLONE}/webapp/resources" "${EXIST_MINIMAL}/webapp"
-	cp -r "${EXIST_CLONE}/webapp/WEB-INF/catalog.xml" "${EXIST_CLONE}/webapp/WEB-INF/controller-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/entities" "${EXIST_CLONE}/webapp/WEB-INF/web.xml" "${EXIST_MINIMAL}/webapp/WEB-INF"
+	cp -r "${EXIST_CLONE}/webapp/WEB-INF/betterform-version.info" "${EXIST_CLONE}/webapp/WEB-INF/catalog.xml" "${EXIST_CLONE}/webapp/WEB-INF/controller-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/entities" "${EXIST_CLONE}/webapp/WEB-INF/web.xml" "${EXIST_MINIMAL}/webapp/WEB-INF"
 
 	# copy extension libs
 	copy_extension_libs modules
+	copy_extension_libs betterform/main
 	copy_extension_libs contentextraction
 	copy_extension_libs webdav
 	copy_extension_libs xprocxq/main
@@ -102,7 +103,7 @@ minify_exist() {
 	copy_extension_libs indexes/lucene
 }
 
-# DP: I do not undertand what is going on here, and more importantly why here and not in dockerfile
+# DP: I do not understand what is going on here, and more importantly why here and not in hooks or the dockerfile
 # Extract arguments
 EXPERIMENTAL=NO          # YES to use Docker experimental features, NO otherwise
 MINIMAL=NO                # YES to create a minimal eXist-db server Docker image,$ NO for a full image
