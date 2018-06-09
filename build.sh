@@ -87,7 +87,7 @@ minify_exist() {
 	# copy webapp
 	mkdir -p "${EXIST_MINIMAL}/webapp/WEB-INF"
 	cp -r "${EXIST_CLONE}/webapp/404.html" "${EXIST_CLONE}/webapp/controller.xql" "${EXIST_CLONE}/webapp/logo.jpg" "${EXIST_CLONE}/webapp/resources" "${EXIST_MINIMAL}/webapp"
-	cp -r "${EXIST_CLONE}/webapp/WEB-INF/betterform-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/betterform-version.info" "${EXIST_CLONE}/webapp/WEB-INF/catalog.xml" "${EXIST_CLONE}/webapp/WEB-INF/controller-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/dwr.xml" "${EXIST_CLONE}/webapp/WEB-INF/dwr20.dtd" "${EXIST_CLONE}/webapp/WEB-INF/entities" "${EXIST_CLONE}/webapp/WEB-INF/web.xml" "${EXIST_MINIMAL}/webapp/WEB-INF"
+	cp -r "${EXIST_CLONE}/webapp/WEB-INF/betterform-version.info" "${EXIST_CLONE}/webapp/WEB-INF/catalog.xml" "${EXIST_CLONE}/webapp/WEB-INF/controller-config.xml" "${EXIST_CLONE}/webapp/WEB-INF/entities" "${EXIST_CLONE}/webapp/WEB-INF/web.xml" "${EXIST_MINIMAL}/webapp/WEB-INF"
 
 	# copy extension libs
 	copy_extension_libs modules
