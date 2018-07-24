@@ -24,7 +24,7 @@ You can use the `./build.sh` script which will clone or update eXist-db from Git
 $ git clone https://github.com/evolvedbinary/docker-existdb.git
 
 $ cd docker-existdb
-$ ./build.sh eXist-4.3.0
+$ ./build.sh eXist-4.3.1
 ```
 
 ### Building a Minimal eXist-db Docker Image
@@ -35,7 +35,7 @@ The standard build uses a full-fat clone of eXist-db from GitHub which has been 
 $ git clone https://github.com/evolvedbinary/docker-existdb.git
 
 $ cd docker-existdb
-$ ./build.sh --minimal eXist-4.3.0
+$ ./build.sh --minimal eXist-4.3.1
 ```
 
 ## Running an eXist-db Docker Image
@@ -45,13 +45,13 @@ eXist-db inside the Docker container is listening on TCP ports `8080` for HTTP a
 
 
 ```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-4.3.0
+$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-4.3.1
 ```
 
 or if you wish to instead run the minimal eXist-db Docker image:
 
 ```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-4.3.0-minimal
+$ docker run -it -p 9080:8080 -p 9443:8443 evolvedbinary/exist-db:eXist-4.3.1-minimal
 ```
 
 You can now connect to the eXist-db running inside the Docker container from your host machine using ports `9080` and `9443`.
@@ -87,13 +87,13 @@ This can be useful if you need to share data between the Container and the Host.
 For example is you wanted to keep eXist-db's data in the host folder `/Users/bob/docker-exist-data/01` you would launch a container using something like:
 
 ```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-4.3.0
+$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-4.3.1
 ```
 
 or if you wish to instead run the minimal eXist-db Docker image:
 
 ```bash
-$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-4.3.0-minimal
+$ docker run -it -p 9080:8080 -p 9443:8443 --volume /Users/bob/docker-exist-data/01:/exist-data evolvedbinary/exist-db:eXist-4.3.1-minimal
 ```
 
 
