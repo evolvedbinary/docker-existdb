@@ -1,3 +1,5 @@
+# !! Archive !! Development has moved to the official exist-db images
+
 # eXist-db Docker Image Builder
 
 [![Build Status](https://travis-ci.org/evolvedbinary/docker-existdb.svg?branch=master)](https://travis-ci.org/evolvedbinary/docker-existdb)
